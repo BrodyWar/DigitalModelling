@@ -1,8 +1,10 @@
+#define _USE_MATH_DEFINES
+
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
+#include <cmath>
 
-#define pi 3.1415
 
 int p = 1;
 
@@ -262,7 +264,7 @@ public:
     }
     Shape global(Shape* shape) {
         Shape elem;
-        double a = this->a / 180.0 * pi;
+        double a = this->a / 180.0 * M_PI;
         for (int i = 0; i < 4; ++i) {
             elem.x[i] = this->pos.x + shape->x[i] * std::cos(a) - shape->y[i] * std::sin(a);
             elem.y[i] = this->pos.y + shape->x[i] * std::sin(a) + shape->y[i] * std::cos(a);
@@ -272,7 +274,7 @@ public:
 
     Wheels global(Wheels* wheels) {
         Wheels body;
-        double a = this->a / 180.0 * pi;
+        double a = this->a / 180.0 * M_PI;
         for (int i = 0; i < 2; i++) {
             body.pos[i].x = this->pos.x + wheels->pos[i].x * std::cos(a) - wheels->pos[i].y * std::sin(a);
             body.pos[i].y = this->pos.y + wheels->pos[i].x * std::sin(a) + wheels->pos[i].y * std::cos(a);
@@ -287,11 +289,11 @@ void f(BodyA* body, BodyA* dot) {
     double g = 9.81, k = 1, r = 0.6, len = 20;
     double j = 150;
     double m = body[0].m;
-    double tenzor = (1.0 / 12.0) * (std::pow(body[0]._shape->a, 2) + std::pow(body[0]._shape->b, 2)) * m;
+    double impuls = (1.0 / 12.0) * (std::pow(body[0]._shape->a, 2) + std::pow(body[0]._shape->b, 2)) * m;
 
     Shape el = body[0].global(body[0]._shape);
     Wheels wheels = body[0].global(body[0]._wheels);
-    double a = body[0].a / 180.0 * pi; // translate grad to rad
+    double a = body[0].a / 180.0 * M_PI; // translate grad to rad
     dot[0].w = 0;
 
 
@@ -299,13 +301,13 @@ void f(BodyA* body, BodyA* dot) {
         dot[0].pos.y = 0;
         body[0].mov.y = 0;
         if (el.y[2] <= 0)
-            dot[0].w += -j *  std::fabs(std::cos(a)) * (el.x[2] - body[0].pos.x) / (tenzor);
+            dot[0].w += -j *  std::fabs(std::cos(a)) * (el.x[2] - body[0].pos.x) / (impuls);
         if (el.y[3] <= 0)
-            dot[0].w += j  * std::fabs(std::cos(a)) * (el.x[3] - body[0].pos.x) / (tenzor);
+            dot[0].w += j  * std::fabs(std::cos(a)) * (el.x[3] - body[0].pos.x) / (impuls);
         if (el.y[1] <= 0)
-            dot[0].w += -j  * std::fabs(std::cos(a)) * (el.x[1] - body[0].pos.x) / (tenzor);
+            dot[0].w += -j  * std::fabs(std::cos(a)) * (el.x[1] - body[0].pos.x) / (impuls);
         if (el.y[0] <= 0)
-            dot[0].w += j  * std::fabs(std::cos(a)) * (el.x[0] - body[0].pos.x) / (tenzor);
+            dot[0].w += j  * std::fabs(std::cos(a)) * (el.x[0] - body[0].pos.x) / (impuls);
     }
     
 
@@ -313,16 +315,16 @@ void f(BodyA* body, BodyA* dot) {
 
     
     if (wheels.pos[0].y <= 0) { // left wheel
-        body[0]._wheels->mov[0].y = -body[0].mov.y -std::sqrt(std::pow(body[0]._wheels->pos[0].y - body[0].pos.y, 2) + std::pow(body[0]._wheels->pos[0].x - body[0].pos.x, 2)) * body[0].w / tenzor;
-        dot[0].w += j * std::fabs(std::cos(a)) * (el.x[0] - body[0].pos.x) / (tenzor );
+        body[0]._wheels->mov[0].y = -body[0].mov.y -std::sqrt(std::pow(body[0]._wheels->pos[0].y - body[0].pos.y, 2) + std::pow(body[0]._wheels->pos[0].x - body[0].pos.x, 2)) * body[0].w / impuls;
+        dot[0].w += k * (body[0]._shape->y[0] - body[0]._wheels->pos[0].y) * std::fabs(std::cos(a)) * (el.x[0] - body[0].pos.x) / (impuls);
     }
     if (wheels.pos[1].y <= 0) { // right wheel
-        body[0]._wheels->mov[1].y = -body[0].mov.y -std::sqrt(std::pow(body[0]._wheels->pos[1].y - body[0].pos.y, 2) + std::pow(body[0]._wheels->pos[1].x - body[0].pos.x, 2)) * body[0].w / tenzor;
-        dot[0].w += j * std::fabs(std::cos(a)) * (el.x[3] - body[0].pos.x) / (tenzor);
+        body[0]._wheels->mov[1].y = -body[0].mov.y -std::sqrt(std::pow(body[0]._wheels->pos[1].y - body[0].pos.y, 2) + std::pow(body[0]._wheels->pos[1].x - body[0].pos.x, 2)) * body[0].w / impuls;
+        dot[0].w += k * (body[0]._shape->y[3] - body[0]._wheels->pos[1].y) * std::fabs(std::cos(a)) * (el.x[3] - body[0].pos.x) / (impuls);
     }
+    //std::sqrt(std::pow(wheels.pos[0].y - el.y[0],2) + std::pow(wheels.pos[0].x-el.x[0],2))
 
-
-    dot[0].a = body[0].w * 180 / pi; // translate rad to grad
+    dot[0].a = body[0].w * 180 / M_PI; // translate rad to grad
     
 
 
@@ -334,13 +336,13 @@ void f(BodyA* body, BodyA* dot) {
     dot[0].mov.y = -g - k * (body[0]._shape->y[0] - body[0]._wheels->pos[0].y - len) * std::fabs(std::cos(a)) - double(r*body[0].mov.y)
         - k * (body[0]._shape->y[3] - body[0]._wheels->pos[1].y - len) * std::fabs(std::cos(a)) - double(r*body[0].mov.y);
 
-    dot[0]._wheels->pos[0].x = body[0]._wheels->mov[0].x;
+    dot[0]._wheels->pos[0].x = 0;
     dot[0]._wheels->pos[0].y = body[0]._wheels->mov[0].y;
     dot[0]._wheels->mov[0].x = body[0]._wheels->mov[0].x;
     dot[0]._wheels->mov[0].y = -g + k / m * (body[0]._shape->y[0] - body[0]._wheels->pos[0].y - len) * std::fabs(std::cos(a)) + double(r *body[0].mov.y);
 
 
-    dot[0]._wheels->pos[1] = body[0]._wheels->mov[0];
+    dot[0]._wheels->pos[1].x = 0;
     dot[0]._wheels->pos[1].y = body[0]._wheels->mov[1].y;
     dot[0]._wheels->mov[1].x = body[0]._wheels->pos[1].x;
     dot[0]._wheels->mov[1].y = -g + k / m * (body[0]._shape->y[3] - body[0]._wheels->pos[1].y - len) * std::fabs(std::cos(a)) + double(r*body[0].mov.y);
