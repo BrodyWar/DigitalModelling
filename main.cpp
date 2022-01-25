@@ -371,7 +371,7 @@ int main()
 
         if (state == GLFW_PRESS)
         {
-            body[0] = BodyA(State(0, 50), 40);
+            body[0] = BodyA(State(0, 50), 0);
         }
 
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
