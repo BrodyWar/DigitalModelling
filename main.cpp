@@ -366,6 +366,39 @@ int main()
     glScaled(0.01f, 0.01f, 0.0);
     while (!glfwWindowShouldClose(window))
     {
+        
+        int state = glfwGetKey(window, GLFW_KEY_SPACE);
+
+        if (state == GLFW_PRESS)
+        {
+            body[0] = BodyA(State(0, 50), 40);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+        {
+            body[0].w += 0.3;
+        }
+
+        else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+        {
+            body[0].w -= 0.3;
+        }
+        else
+            body[0].w += 0;
+
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        {
+            body[0].mov.x = 10;
+        }
+
+        else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        {
+            body[0].mov.x = -10;
+        }
+        else
+            body[0].mov.x = 0;
+
+
         {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glClearColor(0.2f, 0.3f, 0.6f, 0.0f);
@@ -413,6 +446,7 @@ int main()
         }
 
 
+
         double m = body[0].m;
         double a = body[0].a / 180.0 * M_PI; // translate grad to rad
         double moment = (1.0 / 12.0) * (std::pow(body[0]._shape->a, 2) + std::pow(body[0]._shape->b, 2)) * m;
@@ -438,13 +472,13 @@ int main()
         double curlen1 = body[0]._shape->y[0] - body[0]._wheels->pos[0].y, curlen2 = body[0]._shape->y[3] - body[0]._wheels->pos[1].y;
 
         if (wheels1.pos[0].y <= 0) { // left wheel
-
-
-            body[0]._wheels->mov[0].y = -body[0].mov.y - wheels1.pos[0].y;
-            body[0].w += k * std::fabs(std::sqrt(std::pow(wheels1.pos[0].y - el1.y[0], 2) + std::pow(wheels1.pos[0].x - el1.x[0], 2)) - len)  * (el1.x[0] - body[0].pos.x) / (moment);
-
             if (std::fabs(body[0]._wheels->mov[0].y) < 0.25)
                 body[0]._wheels->mov[0].y = 0;
+
+            body[0]._wheels->mov[0].y = -body[0].mov.y -wheels1.pos[0].y;
+            body[0].w += k * std::fabs(std::sqrt(std::pow(wheels1.pos[0].y - el1.y[0], 2) + std::pow(wheels1.pos[0].x - el1.x[0], 2)) - len )  * (el1.x[0] - body[0].pos.x) / (moment);
+
+ 
 
 
         }
@@ -453,7 +487,7 @@ int main()
             if (std::fabs(body[0]._wheels->mov[1].y) < 0.25)
                 body[0]._wheels->mov[1].y = 0;
 
-            body[0]._wheels->mov[1].y = -body[0].mov.y - wheels1.pos[1].y;
+            body[0]._wheels->mov[1].y = -body[0].mov.y -wheels1.pos[1].y;
             body[0].w += k * std::fabs(std::sqrt(std::pow(wheels1.pos[1].y - el1.y[3], 2) + std::pow(wheels1.pos[1].x - el1.x[3], 2)) - len)  * (el1.x[3] - body[0].pos.x) / (moment);
 
 
